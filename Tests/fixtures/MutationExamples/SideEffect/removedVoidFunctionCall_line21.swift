@@ -36,4 +36,11 @@ struct Example {
                      anArgumentLabel: "some argument that's different",
                      anotherArgumentLabel: 5)
     }
+	
+	func containsAVoidFunctionCallInsideAForLoop() {
+		var positionsOfToken: [AbsolutePosition] = []
+		for statement in body.statements where statementContainsMutableToken(statement) {
+			positionsOfToken.append(position)
+		}
+	}
 }

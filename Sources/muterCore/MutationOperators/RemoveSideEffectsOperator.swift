@@ -5,28 +5,38 @@ enum RemoveSideEffectsOperator {
     class Visitor: SyntaxVisitor, PositionDiscoveringVisitor {
         private(set) var positionsOfToken = [AbsolutePosition]()
 
-        override func visit(_ node: FunctionDeclSyntax) {
-            guard let body = node.body else {
-                return
-            }
+//   oh it
+		
+		override func visit(_ node: CodeBlockItemSyntax) {
+			super.visit(node)
+			
+			if node.children.contains(where: {$0 is StructDeclSyntax})  {
+				return
+			}
+			
+//			guard let body = node.body else {
+//				return
+//			}
+			
+			for statement in node.children where statementContainsMutableToken(statement) {
+				let position = statement.endPosition
+				positionsOfToken.append(position)
+			}
+		}
 
-            for statement in body.statements where statementContainsMutableToken(statement) {
-                let position = statement.endPosition
-                positionsOfToken.append(position)
-            }
-        }
-
-        private func statementContainsMutableToken(_ statement: CodeBlockItemListSyntaxIterator.Element) -> Bool {
+        private func statementContainsMutableToken(_ statement: Syntax) -> Bool {
             let doesntContainVariableAssignment = statement.children.count(variableAssignmentStatements) == 0
             let containsDiscardedResult = statement.description.contains("_ = ")
             let containsFunctionCall = statement.children
-                .include(functionCallStatements)
+				.include(functionCallStatements)
                 .exclude(specialFunctionCallStatements)
                 .count >= 1
+			
+			statement.children.include { $0 is CodeBlockSyntax }.
 
             return doesntContainVariableAssignment && (containsDiscardedResult || containsFunctionCall)
         }
-
+//statement.children.include { $0 is CodeBlockSyntax }.flatMap { $0.children }.include { $0 is CodeBlockItemListSyntax}
         private func variableAssignmentStatements(_ node: Syntax) -> Bool {
             return node is VariableDeclSyntax
         }

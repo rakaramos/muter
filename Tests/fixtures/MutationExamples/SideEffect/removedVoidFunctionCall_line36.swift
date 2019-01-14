@@ -34,4 +34,11 @@ struct Example {
 
     func containsAVoidFunctionCallThatSpansManyLine() {
     }
+	
+	func containsAVoidFunctionCallInsideAForLoop() {
+		var positionsOfToken: [AbsolutePosition] = []
+		for statement in body.statements where statementContainsMutableToken(statement) {
+			positionsOfToken.append(position)
+		}
+	}
 }
