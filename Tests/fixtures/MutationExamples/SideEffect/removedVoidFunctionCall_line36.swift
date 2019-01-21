@@ -31,14 +31,18 @@ struct Example {
         let containsIgnoredResult = statement.description.contains("_ = ")
         var anotherIgnoredResult = statement.description.contains("_ = ")
     }
-
+    
     func containsAVoidFunctionCallThatSpansManyLine() {
     }
-	
-	func containsAVoidFunctionCallInsideAForLoop() {
-		var positionsOfToken: [AbsolutePosition] = []
-		for statement in body.statements where statementContainsMutableToken(statement) {
-			positionsOfToken.append(position)
-		}
-	}
+    
+    func containsAVoidFunctionCallInsideAForLoop() {
+        var positionsOfToken: [AbsolutePosition] = []
+        for statement in body.statements where statementContainsMutableToken(statement) {
+            positionsOfToken.append(position)
+        }
+    }
+    
+    func containsAVoidFunctionCallThatThrows() {
+        try toDoSomethingThatThrows()
+    }
 }

@@ -44,4 +44,8 @@ struct Example {
 			positionsOfToken.append(position)
         }
 	}
+    
+    func containsAVoidFunctionCallThatThrows() {
+        try toDoSomethingThatThrows()
+    }
 }

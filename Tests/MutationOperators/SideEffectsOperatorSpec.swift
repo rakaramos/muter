@@ -19,14 +19,14 @@ class RemoveSideEffectsOperatorSpec: QuickSpec {
         }
 
         describe("RemoveSideEffectsOperator.Visitor") {
-            fit("records the positions of code that causes a side effect") {
+            it("records the positions of code that causes a side effect") {
                 let sourceWithSideEffects = sourceCode(fromFileAt: "\(self.fixturesDirectory)/MutationExamples/SideEffect/unusedReturnResult.swift")!
 
                 let visitor = RemoveSideEffectsOperator.Visitor()
                 visitor.visit(sourceWithSideEffects)
 
-                guard visitor.positionsOfToken.count == 5 else {
-                    fail("Expected 5 tokens to be discovered, got \(visitor.positionsOfToken.count) instead")
+                guard visitor.positionsOfToken.count == 6 else {
+                    fail("Expected 6 tokens to be discovered, got \(visitor.positionsOfToken.count) instead")
                     return
                 }
 
@@ -35,6 +35,8 @@ class RemoveSideEffectsOperatorSpec: QuickSpec {
                 expect(visitor.positionsOfToken[2].line).to(equal(21))
                 expect(visitor.positionsOfToken[3].line).to(equal(38))
 				expect(visitor.positionsOfToken[4].line).to(equal(44))
+                expect(visitor.positionsOfToken[5].line).to(equal(49))
+
             }
 
             it("records no positions when a file doesn't contain code that causes a side effect") {
