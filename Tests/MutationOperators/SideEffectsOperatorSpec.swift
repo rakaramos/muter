@@ -18,8 +18,8 @@ class RemoveSideEffectsOperatorSpec: QuickSpec {
             )
         }
 
-        fdescribe("RemoveSideEffectsOperator.Visitor") {
-            it("records the positions of code that causes a side effect") {
+        describe("RemoveSideEffectsOperator.Visitor") {
+            fit("records the positions of code that causes a side effect") {
                 let sourceWithSideEffects = sourceCode(fromFileAt: "\(self.fixturesDirectory)/MutationExamples/SideEffect/unusedReturnResult.swift")!
 
                 let visitor = RemoveSideEffectsOperator.Visitor()

@@ -4,20 +4,10 @@ import Foundation
 enum RemoveSideEffectsOperator {
     class Visitor: SyntaxVisitor, PositionDiscoveringVisitor {
         private(set) var positionsOfToken = [AbsolutePosition]()
-
-//   oh it
-		
-		override func visit(_ node: CodeBlockItemSyntax) {
+        
+        override func visit(_ node: CodeBlockItemSyntax) {
 			super.visit(node)
-			
-			if node.children.contains(where: {$0 is StructDeclSyntax})  {
-				return
-			}
-			
-//			guard let body = node.body else {
-//				return
-//			}
-			
+
 			for statement in node.children where statementContainsMutableToken(statement) {
 				let position = statement.endPosition
 				positionsOfToken.append(position)
@@ -25,27 +15,27 @@ enum RemoveSideEffectsOperator {
 		}
 
         private func statementContainsMutableToken(_ statement: Syntax) -> Bool {
+            if isSpecialFunctionCall(statement) {
+                return false
+            }
+            
             let doesntContainVariableAssignment = statement.children.count(variableAssignmentStatements) == 0
             let containsDiscardedResult = statement.description.contains("_ = ")
-            let containsFunctionCall = statement.children
-				.include(functionCallStatements)
-                .exclude(specialFunctionCallStatements)
-                .count >= 1
-			
-			statement.children.include { $0 is CodeBlockSyntax }.
+            let containsFunctionCall =  statement.children.count(functionCallStatements)   > 0
+            let containsMemberAccess = statement.children.contains { $0 is MemberAccessExprSyntax} && statement.children.contains { $0 is FunctionCallArgumentListSyntax}
 
-            return doesntContainVariableAssignment && (containsDiscardedResult || containsFunctionCall)
+            return doesntContainVariableAssignment && (containsDiscardedResult || containsFunctionCall || containsMemberAccess)
         }
-//statement.children.include { $0 is CodeBlockSyntax }.flatMap { $0.children }.include { $0 is CodeBlockItemListSyntax}
+
         private func variableAssignmentStatements(_ node: Syntax) -> Bool {
             return node is VariableDeclSyntax
         }
 
         private func functionCallStatements(_ node: Syntax) -> Bool {
-            return node is FunctionCallExprSyntax
+            return node is FunctionCallArgumentListSyntax
         }
 
-        private func specialFunctionCallStatements(_ node: Syntax) -> Bool {
+        private func isSpecialFunctionCall(_ node: Syntax) -> Bool {
             return node.description.contains("print") ||
                 node.description.contains("fatalError") ||
                 node.description.contains("exit") ||

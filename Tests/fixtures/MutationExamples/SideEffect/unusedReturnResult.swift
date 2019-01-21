@@ -28,8 +28,8 @@ struct Example {
     }
 
     func containsADeepMethodCall() {
-        let containsIgnoredResult = statement.description.contains("_ = ")
-        var anotherIgnoredResult = statement.description.contains("_ = ")
+        let containsIgnoredResult = statement.description.contains("lol")
+        var anotherIgnoredResult = statement.description.contains("lol")
     }
 
     func containsAVoidFunctionCallThatSpansManyLine() {
@@ -40,8 +40,8 @@ struct Example {
 	
 	func containsAVoidFunctionCallInsideAForLoop() {
 		var positionsOfToken: [AbsolutePosition] = []
-		for statement in body.statements where statementContainsMutableToken(statement) {
+        for statement in body.statements where statementContainsMutableToken(statement) {
 			positionsOfToken.append(position)
-		}
+        }
 	}
 }

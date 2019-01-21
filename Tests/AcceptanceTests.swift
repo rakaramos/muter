@@ -8,7 +8,7 @@ import Nimble
 class AcceptanceTests: QuickSpec {
     override func spec() {
        
-        describe("someone using Muter", flags: [:]) {
+        xdescribe("someone using Muter", flags: [:]) {
             context("when Muter discovers operators it can apply", flags: [:]) {
                 var output: String!
 
