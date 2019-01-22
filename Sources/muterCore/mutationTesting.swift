@@ -40,6 +40,11 @@ func mutationScore(from testResults: [TestSuiteResult]) -> Int {
 
     let numberOfFailures = Double(testResults.count { $0 == .failed || $0 == .runtimeError })
     let totalResults = Double(testResults.count { $0 != .buildError })
+
+    guard totalResults != 0 else {
+        return 0
+    }
+
     return Int((numberOfFailures / totalResults) * 100.0)
 }
 
