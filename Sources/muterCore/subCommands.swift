@@ -78,11 +78,11 @@ public func performMutationTesting(in currentDirectoryPath: String, configuratio
 
     printMessage("Discovering applicable Mutation Operators in:\n\n\(currentDirectoryPath)")
     let mutationOperators = discoverMutationOperators(inFilesAt: sourceFilePaths)
-    
+
     guard mutationOperators.count >= 1 else {
         printMessage("""
         Muter wasn't able to discover any code it could mutation test.
-        
+
         This is likely caused by misconfiguring Muter.
 
         If you feel this is a bug, or want help figuring out what could be happening, please open an issue at:
@@ -91,7 +91,7 @@ public func performMutationTesting(in currentDirectoryPath: String, configuratio
         """)
         exit(1)
     }
-    
+
     printDiscoveryMessage(for: mutationOperators)
 
     FileManager.default.changeCurrentDirectoryPath(currentDirectoryPath)

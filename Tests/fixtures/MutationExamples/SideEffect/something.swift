@@ -6,7 +6,7 @@ struct Example {
 
     func containsSideEffect() -> Int {
         print("something")
-        
+
         _ = causesSideEffect()
     }
 

@@ -49,3 +49,10 @@ struct Example {
         try toDoSomethingThatThrows()
     }
 }
+
+func containSideEffects(_ a: Int) -> String {
+    let b = something()
+    _ = returnsSomethingThatGetsIgnored()
+    voidFunctionCall()
+    return ""
+}
