@@ -33,22 +33,28 @@ enum RemoveSideEffectsOperator {
 private extension RemoveSideEffectsOperator.Visitor {
     func statementCanBeMutated(_ statement: Syntax) -> Bool {
         return statementIsNotFunctionDeclaration(statement) &&
-            statementContainsFunctionCall(statement)
+            statementContainsVoidFunctionCall(statement)
     }
 
     func statementIsNotFunctionDeclaration(_ statement: Syntax) -> Bool {
         return !(statement is FunctionDeclSyntax)
     }
 
-    func statementContainsFunctionCall(_ statement: Syntax) -> Bool {
+    func statementContainsVoidFunctionCall(_ statement: Syntax) -> Bool {
         if isSpecialFunctionCall(statement) {
             return false
         }
 
         let doesntContainVariableAssignment = statement.children.count(variableAssignmentStatements) == 0
         let containsFunctionCall = statement.children.count(functionCallStatements) > 0
+        let doesntContainReturnStatement = statement.children.count(returnStatements) == 0
+        return doesntContainReturnStatement &&
+            doesntContainVariableAssignment &&
+            (containsFunctionCall || containsMemberAccess(statement))
+    }
 
-        return doesntContainVariableAssignment && (containsFunctionCall || containsMemberAccess(statement))
+    func returnStatements(_ node: Syntax) -> Bool {
+        return node.description.contains("return")
     }
 
     func variableAssignmentStatements(_ node: Syntax) -> Bool {
@@ -81,24 +87,34 @@ extension RemoveSideEffectsOperator {
         }
 
         override func visit(_ node: FunctionDeclSyntax) -> DeclSyntax {
+            // parse every line of the declaration into a mapping of the line number to the statements on that line
+            // remove the statements that match the line we need to mutate
+            // generate and return a new function declaration that has the lines excluded
 
-            guard let statements = node.body?.statements,
-                let statementToExclude = statements.first(where: currentLineIsPositionToMutate) else {
-                    return node
+            var items: [Syntax] = []
+            for item in node.body!.statements
+                .map({ $0.item }) {
+                    items += flatten(item.children)
             }
-
-            let mutatedFunctionStatements = statements.exclude { $0.description == statementToExclude.description }
-
-            let newCodeBlockItemList = SyntaxFactory.makeCodeBlockItemList(mutatedFunctionStatements)
-            let newFunctionBody = node.body!.withStatements(newCodeBlockItemList)
-
-            return mutated(node, with: newFunctionBody)
+            
+            let result = items.exclude { $0.endPosition.line == positionToMutate.line }.map { SyntaxFactory.makeCodeBlockItem(item: $0, semicolon: nil)}
+            let body = SyntaxFactory.makeCodeBlock(leftBrace: node.body!.leftBrace,
+                                        statements: SyntaxFactory.makeCodeBlockItemList(result),
+                                        rightBrace: node.body!.rightBrace)
+            
+            return mutated(node, with: body)
         }
-
-        private func currentLineIsPositionToMutate(_ currentStatement: CodeBlockItemSyntax) -> Bool {
-            return currentStatement.endPosition.line == positionToMutate.line
+        
+        func flatten(_ node: SyntaxChildren) -> [Syntax] {
+            
+            return node.accumulate(into: []) { result, childNode in
+                if childNode.numberOfChildren == 0 {
+                    return [childNode] + result
+                }
+                return flatten(childNode.children) + result
+            }
         }
-
+        
         private func mutated(_ node: FunctionDeclSyntax, with body: CodeBlockSyntax) -> DeclSyntax {
             return SyntaxFactory.makeFunctionDecl(attributes: node.attributes,
                                                   modifiers: node.modifiers,
@@ -108,7 +124,6 @@ extension RemoveSideEffectsOperator {
                                                   signature: node.signature,
                                                   genericWhereClause: node.genericWhereClause,
                                                   body: body)
-
         }
     }
 }

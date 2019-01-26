@@ -90,6 +90,20 @@ class RemoveSideEffectsOperatorSpec: QuickSpec {
 
                 expect(results.mutatedSource.description) == results.expectedSource.description
             }
+            
+            it("deletes a void function call that can thrown error") {
+           
+            }
+            
+            fit("deletes a void function call that is inside of the loop") {
+                let path = "\(self.fixturesDirectory)/MutationExamples/SideEffect/unusedReturnResult.swift"
+                let expectedSourcePath = "\(self.fixturesDirectory)/MutationExamples/SideEffect/removedVoidFunctionCall_line44.swift"
+                let line38 = AbsolutePosition(line: 44, column: -1, utf8Offset: -1)
+                
+                let results = applyMutation(toFileAt: path, atPosition: line38, expectedOutcome: expectedSourcePath)
+                
+                expect(results.mutatedSource.description) == results.expectedSource.description
+            }
         }
 
         describe("MutationOperator.Id.sideEffects.transformation") {
