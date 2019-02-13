@@ -23,16 +23,16 @@ public struct MuterTestReport {
 
                 return (fileName, mutationScore, appliedMutations)
             }
-            .map(FileReport.init)
+            .map(FileReport.init(fileName:mutationScore:appliedOperators:))
     }
 
-    struct FileReport: Encodable, Equatable {
+    struct FileReport: Codable, Equatable {
         let fileName: FileName
         let mutationScore: Int
         let appliedOperators: [AppliedMutationOperator]
     }
 
-    struct AppliedMutationOperator: Encodable, Equatable {
+    struct AppliedMutationOperator: Codable, Equatable {
         let id: MutationOperator.Id
         let position: AbsolutePosition
         let testSuiteOutcome: TestSuiteOutcome
@@ -40,7 +40,7 @@ public struct MuterTestReport {
 }
 
 extension MuterTestReport: Equatable {}
-extension MuterTestReport: Encodable {}
+extension MuterTestReport: Codable {}
 
 extension MuterTestReport: CustomStringConvertible {
     public var description: String {
@@ -54,7 +54,7 @@ extension MuterTestReport: CustomStringConvertible {
 
         In total, Muter applied \(totalAppliedMutationOperators) mutation operators.
 
-        \(generateAppliedMutationsCLITable(from: self.fileReports))
+        \(generateAppliedMutationsCLITable(from: self.fileReports).description)
 
 
 
@@ -73,7 +73,7 @@ extension MuterTestReport: CustomStringConvertible {
 
         \(mutationScoreMessage)
 
-        \(generateMutationScoresCLITable(from: self.fileReports))
+        \(generateMutationScoresCLITable(from: self.fileReports).description)
         """
 
         return finishedRunningMessage + appliedMutationsMessage + mutationScoresMessage

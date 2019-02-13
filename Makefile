@@ -14,6 +14,12 @@ build-release:
 build-tests: 
 	swift build --target muterTests -Xswiftc -suppress-warnings
 
+project:
+	swift package generate-xcodeproj
+
+release: 
+	./Scripts/shipIt.sh $(VERSION)
+
 install: build-release
 	install -d "$(bindir)" "$(libdir)"
 	install "$(BUILDDIR)/release/muter" "$(bindir)"
@@ -34,12 +40,16 @@ run: build
 	$(BUILDDIR)/debug/muter
 
 test: 
-	@swift test -Xswiftc -suppress-warnings
+	swift package generate-xcodeproj
+	xcodebuild -scheme muter -only-testing:muterTests test
 	
 acceptance-test: build
 	./Scripts/runAcceptanceTests.sh
 
+regression-test: build
+	./Scripts/runRegressionTests.sh
+
 mutation-test: clean
 	muter
 
-.PHONY: build build-tests clean test run install uninstall  
+.PHONY: build build-tests clean test run install uninstall release
