@@ -7,8 +7,10 @@ public struct MuterTestReport {
     let globalMutationScore: Int
     let totalAppliedMutationOperators: Int
     let fileReports: [FileReport]
+    private let xcodeOutput: Bool
 
-    public init(from outcomes: [MutationTestOutcome] = []) {
+    public init(from outcomes: [MutationTestOutcome] = [], xcodeOutput output: Bool = false) {
+        xcodeOutput = output
         globalMutationScore = mutationScore(from: outcomes.map { $0.testSuiteOutcome })
         totalAppliedMutationOperators = outcomes.count
         fileReports = mutationScoreOfFiles(from: outcomes)
@@ -26,7 +28,7 @@ public struct MuterTestReport {
             .map(FileReport.init(fileName:mutationScore:appliedOperators:))
     }
 
-    struct FileReport: Codable, Equatable {
+    public struct FileReport: Codable, Equatable {
         let fileName: FileName
         let mutationScore: Int
         let appliedOperators: [AppliedMutationOperator]
@@ -44,6 +46,21 @@ extension MuterTestReport: Codable {}
 
 extension MuterTestReport: CustomStringConvertible {
     public var description: String {
+        guard xcodeOutput == false else {
+            // {full_path_to_file}{:line}{:character}: {error,warning}: {content}
+            return fileReports.map { (file: FileReport) -> String in
+                let fileName = file.fileName
+                return file.appliedOperators
+                    .filter { $0.testSuiteOutcome == .passed }
+                    .map {
+                        "\(fileName): " +
+                        "\($0.position): " +
+                        "warning:" +
+                        "Your test suite did not kill this mutant: Changed"
+                    }.joined()
+            }.joined()
+        }
+
         let finishedRunningMessage = "Muter finished running!\n\n"
         let appliedMutationsMessage = """
         --------------------------
