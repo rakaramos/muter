@@ -53,11 +53,11 @@ extension MuterTestReport: CustomStringConvertible {
                 return file.appliedOperators
                     .filter { $0.testSuiteOutcome == .passed }
                     .map {
-                        "\(fileName): " +
-                        "\($0.position): " +
-                        "warning:" +
-                        "Your test suite did not kill this mutant: Changed"
-                    }.joined()
+                        "\(fileName):" +
+                            "\($0.position.line):\($0.position.utf8Offset): " +
+                        "warning: " +
+                        "\"Your test suite did not kill this mutant: Changed\""
+                }.joined(separator: "\n")
             }.joined()
         }
 

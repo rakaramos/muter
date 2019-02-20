@@ -43,7 +43,7 @@ class MuterTestReportSpec: QuickSpec {
 
                     it("reports the results") {
                         expect(report.description).notTo(beEmpty())
-                        // TODO: Need to figure out the <0x1b> that Rainbow? adds
+                        // TODO: Need to figure out the <0x1b> that Rainbow adds
 //                        expect(report.description).to(equal(
 //        """
 //        Muter finished running!
@@ -144,7 +144,10 @@ class MuterTestReportSpec: QuickSpec {
                     }
 
                     it("reports the results") {
-                        expect(report.description).to(equal(""))
+                        expect(report.description).to(equal("file 4.swift:0:0: warning: \"Your test suite did not kill this mutant: Changed\"\n" +
+                            "file1.swift:0:0: warning: \"Your test suite did not kill this mutant: Changed\"\n" +
+                            "file3.swift:0:0: warning: \"Your test suite did not kill this mutant: Changed\"\n" +
+                            "file3.swift:0:0: warning: \"Your test suite did not kill this mutant: Changed\""))
                     }
                 }
 
