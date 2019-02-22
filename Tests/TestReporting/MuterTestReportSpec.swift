@@ -112,42 +112,11 @@ class MuterTestReportSpec: QuickSpec {
                 context("when given a nonempty collection of MutationTestOutcomes") {
                     var report: MuterTestReport!
                     beforeEach {
-                        report = MuterTestReport(from: self.exampleMutationTestResults, xcodeOutput: true)
-                    }
-
-                    // TODO: This doesn't make sense on this context, must...remove...it
-                    it("calculates all its fields as part of its initialization") {
-                        expect(report.globalMutationScore).to(equal(55))
-                        expect(report.totalAppliedMutationOperators).to(equal(9))
-                        expect(report.fileReports).to(haveCount(4))
-
-                        expect(report.fileReports).to(contain(MuterTestReport.FileReport(fileName: "file1.swift", mutationScore: 66, appliedOperators: [
-                            MuterTestReport.AppliedMutationOperator(id: .negateConditionals, position: .firstPosition, testSuiteOutcome: .failed),
-                            MuterTestReport.AppliedMutationOperator(id: .negateConditionals, position: .firstPosition, testSuiteOutcome: .failed),
-                            MuterTestReport.AppliedMutationOperator(id: .negateConditionals, position: .firstPosition, testSuiteOutcome: .passed)
-                            ])))
-
-                        expect(report.fileReports).to(contain(MuterTestReport.FileReport(fileName: "file2.swift", mutationScore: 100, appliedOperators: [
-                            MuterTestReport.AppliedMutationOperator(id: .removeSideEffects, position: .firstPosition, testSuiteOutcome: .failed),
-                            MuterTestReport.AppliedMutationOperator(id: .removeSideEffects, position: .firstPosition, testSuiteOutcome: .failed)
-                            ])))
-
-                        expect(report.fileReports).to(contain(MuterTestReport.FileReport(fileName: "file3.swift", mutationScore: 33, appliedOperators: [
-                            MuterTestReport.AppliedMutationOperator(id: .negateConditionals, position: .firstPosition, testSuiteOutcome: .failed),
-                            MuterTestReport.AppliedMutationOperator(id: .negateConditionals, position: .firstPosition, testSuiteOutcome: .passed),
-                            MuterTestReport.AppliedMutationOperator(id: .negateConditionals, position: .firstPosition, testSuiteOutcome: .passed)
-                            ])))
-
-                        expect(report.fileReports).to(contain(MuterTestReport.FileReport(fileName: "file 4.swift", mutationScore: 0, appliedOperators: [
-                            MuterTestReport.AppliedMutationOperator(id: .negateConditionals, position: .firstPosition, testSuiteOutcome: .passed)
-                            ])))
+                        report = MuterTestReport(from: [MutationTestOutcome(testSuiteOutcome: .passed, appliedMutation: .negateConditionals, filePath: "file1.swift", position: .firstPosition)], xcodeOutput: true)
                     }
 
                     it("reports the results") {
-                        expect(report.description).to(equal("file 4.swift:0:0: warning: \"Your test suite did not kill this mutant: Changed\"\n" +
-                            "file1.swift:0:0: warning: \"Your test suite did not kill this mutant: Changed\"\n" +
-                            "file3.swift:0:0: warning: \"Your test suite did not kill this mutant: Changed\"\n" +
-                            "file3.swift:0:0: warning: \"Your test suite did not kill this mutant: Changed\""))
+                        expect(report.description).to(equal("file1.swift:0:0: warning: \"Your test suite did not kill this mutant: Changed\""))
                     }
                 }
 
@@ -157,7 +126,6 @@ class MuterTestReportSpec: QuickSpec {
                         report = MuterTestReport(from: [], xcodeOutput: true)
                     }
 
-                    // TODO: This doesn't make sense on this context, must...remove...it
                     it("calculates all its fields to empty values as part of its initialization") {
                         expect(report.globalMutationScore).to(equal(-1))
                         expect(report.totalAppliedMutationOperators).to(equal(0))
