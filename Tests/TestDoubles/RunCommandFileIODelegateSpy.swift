@@ -6,6 +6,7 @@ class RunCommandIODelegateSpy: Spy, RunCommandIODelegate {
     private(set) var directories: [String] = []
     private(set) var configurations: [MuterConfiguration] = []
     private(set) var reports: [MuterTestReport] = []
+    private(set) var reporters: [Reporter] = []
     public var reportToReturn: MuterTestReport?
     public var configurationToReturn: MuterConfiguration!
 
@@ -19,9 +20,10 @@ class RunCommandIODelegateSpy: Spy, RunCommandIODelegate {
         directories.append(directory)
     }
 
-    func executeTesting(using configuration: MuterConfiguration) -> MuterTestReport? {
+    func executeTesting(using configuration: MuterConfiguration, reporter: @escaping Reporter) -> MuterTestReport? {
         methodCalls.append(#function)
         configurations.append(configuration)
+        reporters.append(reporter)
         return reportToReturn
     }
 

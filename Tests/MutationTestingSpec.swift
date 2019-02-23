@@ -34,9 +34,9 @@ class MutationTestingSpec: QuickSpec {
                                             appliedMutation: .negateConditionals,
                                             filePath: "a file path",
                                             position: .firstPosition),
-                    ])
+                    ], reporter: { _ in "" })
 
-                    let actualReport = performMutationTesting(using: [mutationOperatorStub, mutationOperatorStub], delegate: delegateSpy)
+                    let actualReport = performMutationTesting(using: [mutationOperatorStub, mutationOperatorStub], reporter: reporter, delegate: delegateSpy)
 
                     expect(delegateSpy.methodCalls).to(equal([
                         // Base test suite run
@@ -71,7 +71,7 @@ class MutationTestingSpec: QuickSpec {
                 }
 
                 it("bails after max attempts reached") {
-                    let actualReport = performMutationTesting(using: Array(repeating: mutationOperatorStub, count: 5), delegate: delegateSpy)
+                    let actualReport = performMutationTesting(using: Array(repeating: mutationOperatorStub, count: 5), reporter: reporter, delegate: delegateSpy)
 
                     expect(delegateSpy.methodCalls).to(equal([
                         // Base test suite run
@@ -112,7 +112,7 @@ class MutationTestingSpec: QuickSpec {
                     expect(delegateSpy.mutatedFileContents.first).to(equal(SyntaxFactory.makeReturnKeyword().description))
                     expect(delegateSpy.mutatedFilePaths.first).to(equal("a file path"))
 
-                    expect(actualReport).to(equal(MuterTestReport()))
+                    expect(actualReport).to(equal(MuterTestReport(reporter: reporter)))
                     expect(delegateSpy.abortReasons).to(equal([.tooManyBuildErrors]))
                 }
             }
@@ -145,9 +145,9 @@ class MutationTestingSpec: QuickSpec {
                                             appliedMutation: .negateConditionals,
                                             filePath: "a file path",
                                             position: .firstPosition),
-                    ])
+                    ], reporter: reporter)
 
-                    let actualReport = performMutationTesting(using: Array(repeating: mutationOperatorStub, count: 5), delegate: delegateSpy)
+                    let actualReport = performMutationTesting(using: Array(repeating: mutationOperatorStub, count: 5), reporter: reporter, delegate: delegateSpy)
 
                     expect(delegateSpy.methodCalls).to(equal([
                         // Base test suite run
@@ -198,7 +198,7 @@ class MutationTestingSpec: QuickSpec {
                     }
 
                     it("doesn't perform any mutation testing") {
-                        let testReport = performMutationTesting(using: [], delegate: delegateSpy)
+                        let testReport = performMutationTesting(using: [], reporter: reporter, delegate: delegateSpy)
 
                         expect(delegateSpy.methodCalls).to(equal([
                             "runTestSuite(savingResultsIntoFileNamed:)",
@@ -215,7 +215,7 @@ class MutationTestingSpec: QuickSpec {
                     }
 
                     it("doesn't perform any mutation testing") {
-                        let testReport = performMutationTesting(using: [], delegate: delegateSpy)
+                        let testReport = performMutationTesting(using: [], reporter: reporter, delegate: delegateSpy)
 
                         expect(delegateSpy.methodCalls).to(equal([
                             "runTestSuite(savingResultsIntoFileNamed:)",
@@ -232,7 +232,7 @@ class MutationTestingSpec: QuickSpec {
                     }
 
                     it("doesn't perform any mutation testing") {
-                        let testReport = performMutationTesting(using: [], delegate: delegateSpy)
+                        let testReport = performMutationTesting(using: [], reporter: reporter, delegate: delegateSpy)
 
                         expect(delegateSpy.methodCalls).to(equal([
                             "runTestSuite(savingResultsIntoFileNamed:)",
@@ -273,3 +273,5 @@ class MutationTestingSpec: QuickSpec {
         }
     }
 }
+
+private let reporter: Reporter = { _ in "" }

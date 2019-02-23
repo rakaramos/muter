@@ -52,7 +52,7 @@ class RunCommandDelegateSpec: QuickSpec {
                                                       appliedMutation: .negateConditionals,
                                                       filePath: "some path",
                                                       position: .firstPosition)
-                    let report = MuterTestReport(from: [outcome])
+                    let report = MuterTestReport(from: [outcome], reporter: jsonReport)
 
                     RunCommandDelegate(fileManager: realFileManager).saveReport(report, to: self.rootTestDirectory)
 

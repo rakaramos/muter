@@ -7,8 +7,9 @@ public extension MuterTestReport {
                 .init(testSuiteOutcome: .failed,
                       appliedMutation: .negateConditionals,
                       filePath: "some path",
-                      position: .firstPosition)
-            ]
+                      position: .firstPosition
+                )
+            ], reporter: { _ in "" }
         )
     }
 }

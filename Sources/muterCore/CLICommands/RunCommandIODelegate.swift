@@ -1,9 +1,11 @@
 import Foundation
 
+public typealias Reporter = ([MutationTestOutcome]) -> String
+
 public protocol RunCommandIODelegate  {
     func loadConfiguration() -> MuterConfiguration?
     func backupProject(in directory: String)
-    func executeTesting(using configuration: MuterConfiguration) -> MuterTestReport?
+    func executeTesting(using configuration: MuterConfiguration, reporter: @escaping Reporter) -> MuterTestReport?
     func saveReport(_ report: MuterTestReport, to directory: String)
 }
 
@@ -62,7 +64,7 @@ public class RunCommandDelegate: RunCommandIODelegate {
         return destination.path
     }
 
-    public func executeTesting(using configuration: MuterConfiguration) -> MuterTestReport? {
+    public func executeTesting(using configuration: MuterConfiguration, reporter: @escaping Reporter) -> MuterTestReport? {
         let workingDirectoryPath = createWorkingDirectory(in: temporaryDirectoryURL!)
         printMessage("Created working directory (muter_tmp) in:\n\n\(temporaryDirectoryURL!)")
 
@@ -93,7 +95,7 @@ public class RunCommandDelegate: RunCommandIODelegate {
 
         printMessage("Beginning mutation testing")
         let testingDelegate = MutationTestingDelegate(configuration: configuration, swapFilePathsByOriginalPath: swapFilePathsByOriginalPath)
-        let testReport = performMutationTesting(using: mutationOperators, delegate: testingDelegate)
+        let testReport = performMutationTesting(using: mutationOperators, reporter: reporter, delegate: testingDelegate)
 
         printMessage(testReport?.description ?? "")
         return testReport
@@ -105,7 +107,7 @@ public class RunCommandDelegate: RunCommandIODelegate {
         encoder.outputFormatting = .prettyPrinted
 
         do {
-            let encodedReport = try encoder.encode(report)
+            let encodedReport = try encoder.encode(report.description)
             try encodedReport.write(to: fileName)
         } catch {
             print("""

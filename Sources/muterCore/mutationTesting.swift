@@ -18,7 +18,7 @@ public struct MutationTestOutcome: Equatable {
     }
 }
 
-func performMutationTesting(using operators: [MutationOperator], delegate: MutationTestingIODelegate) -> MuterTestReport? {
+func performMutationTesting(using operators: [MutationOperator], reporter: @escaping Reporter, delegate: MutationTestingIODelegate) -> MuterTestReport? {
     print("Running your test suite to determine a baseline for mutation testing")
 
     let initialResult = delegate.runTestSuite(savingResultsIntoFileNamed: "initial_run")
@@ -28,7 +28,7 @@ func performMutationTesting(using operators: [MutationOperator], delegate: Mutat
     }
 
     let testOutcomes = apply(operators, delegate: delegate)
-    return MuterTestReport(from: testOutcomes)
+    return MuterTestReport(from: testOutcomes, reporter: reporter)
 }
 
 private func apply(_ operators: [MutationOperator], buildErrorsThreshold: Int = 5, delegate: MutationTestingIODelegate) -> [MutationTestOutcome] {

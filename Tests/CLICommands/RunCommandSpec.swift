@@ -18,7 +18,7 @@ class RunCommandSpec: QuickSpec {
                                                                            excludeList: ["and exclude"])
                     let command = RunCommand(delegate: delegateSpy,
                                              currentDirectory: "/something/another")
-                    let options = RunCommandOptions(shouldOutputJSON: false)
+                    let options = RunCommandOptions(shouldOutputJSON: false, shouldOutputXcode: false)
                     _ = command.run(options)
 
                     expect(delegateSpy.methodCalls).to(equal([
@@ -44,7 +44,7 @@ class RunCommandSpec: QuickSpec {
                                                                            arguments: ["an argument"],
                                                                            excludeList: ["and exclude"])
                     delegateSpy.reportToReturn = .dummy
-                    let options = RunCommandOptions(shouldOutputJSON: true)
+                    let options = RunCommandOptions(shouldOutputJSON: true, shouldOutputXcode: false)
                     let command = RunCommand(delegate: delegateSpy, currentDirectory: "/something/another")
 
                     guard case .success = command.run(options) else {
@@ -65,6 +65,35 @@ class RunCommandSpec: QuickSpec {
                 }
             }
 
+            context("with Xcode report flag") {
+                it("executes testing and saves the report as JSON afterwards") {
+
+                    delegateSpy = RunCommandIODelegateSpy()
+                    delegateSpy.configurationToReturn = MuterConfiguration(executable: "not empty",
+                                                                           arguments: ["an argument"],
+                                                                           excludeList: ["and exclude"])
+                    delegateSpy.reportToReturn = .dummy
+                    let options = RunCommandOptions(shouldOutputJSON: false, shouldOutputXcode: true)
+                    let command = RunCommand(delegate: delegateSpy, currentDirectory: "/something/another")
+
+                    guard case .success = command.run(options) else {
+                        fail("Expected a successful result")
+                        return
+                    }
+                    expect(delegateSpy.methodCalls).to(equal([
+                        "loadConfiguration()",
+                        "backupProject(in:)",
+                        "executeTesting(using:)",
+                        "saveReport(_:to:)"
+                        ]))
+                    expect(delegateSpy.directories).to(equal([
+                        "/something/another",
+                        "/something/another"
+                        ]))
+                    expect(delegateSpy.reports).to(equal([.dummy]))
+                }
+            }
+
             context("when there is an invalid configuration file") {
                 beforeEach {
                     delegateSpy = RunCommandIODelegateSpy()
@@ -74,7 +103,7 @@ class RunCommandSpec: QuickSpec {
                 it("doesn't execute testing") {
                     let command = RunCommand(delegate: delegateSpy,
                                              currentDirectory: "/something/another")
-                    let options = RunCommandOptions(shouldOutputJSON: false)
+                    let options = RunCommandOptions(shouldOutputJSON: false, shouldOutputXcode: false)
 
                     guard case .failure(let error) = command.run(options) else {
                         fail("Expected a failure result")

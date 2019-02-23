@@ -11,7 +11,7 @@ class MuterTestReportSpec: QuickSpec {
                 context("when given a nonempty collection of MutationTestOutcomes") {
                     var report: MuterTestReport!
                     beforeEach {
-                        report = MuterTestReport(from: self.exampleMutationTestResults)
+                        report = MuterTestReport(from: self.exampleMutationTestResults, reporter: jsonReport)
                     }
 
                     it("calculates all its fields as part of its initialization") {
@@ -19,24 +19,24 @@ class MuterTestReportSpec: QuickSpec {
                         expect(report.totalAppliedMutationOperators).to(equal(9))
                         expect(report.fileReports).to(haveCount(4))
 
-                        expect(report.fileReports).to(contain(MuterTestReport.FileReport(fileName: "file1.swift", mutationScore: 66, appliedOperators: [
+                        expect(report.fileReports).to(contain(MuterTestReport.FileReport(fileName: "file1.swift", filePath: "/tmp/file1.swift", mutationScore: 66, appliedOperators: [
                             MuterTestReport.AppliedMutationOperator(id: .negateConditionals, position: .firstPosition, testSuiteOutcome: .failed),
                             MuterTestReport.AppliedMutationOperator(id: .negateConditionals, position: .firstPosition, testSuiteOutcome: .failed),
                             MuterTestReport.AppliedMutationOperator(id: .negateConditionals, position: .firstPosition, testSuiteOutcome: .passed)
                             ])))
 
-                        expect(report.fileReports).to(contain(MuterTestReport.FileReport(fileName: "file2.swift", mutationScore: 100, appliedOperators: [
+                        expect(report.fileReports).to(contain(MuterTestReport.FileReport(fileName: "file2.swift", filePath: "/tmp/file2.swift", mutationScore: 100, appliedOperators: [
                             MuterTestReport.AppliedMutationOperator(id: .removeSideEffects, position: .firstPosition, testSuiteOutcome: .failed),
                             MuterTestReport.AppliedMutationOperator(id: .removeSideEffects, position: .firstPosition, testSuiteOutcome: .failed)
                             ])))
 
-                        expect(report.fileReports).to(contain(MuterTestReport.FileReport(fileName: "file3.swift", mutationScore: 33, appliedOperators: [
+                        expect(report.fileReports).to(contain(MuterTestReport.FileReport(fileName: "file3.swift", filePath: "/tmp/file3.swift", mutationScore: 33, appliedOperators: [
                             MuterTestReport.AppliedMutationOperator(id: .negateConditionals, position: .firstPosition, testSuiteOutcome: .failed),
                             MuterTestReport.AppliedMutationOperator(id: .negateConditionals, position: .firstPosition, testSuiteOutcome: .passed),
                             MuterTestReport.AppliedMutationOperator(id: .negateConditionals, position: .firstPosition, testSuiteOutcome: .passed)
                             ])))
 
-                        expect(report.fileReports).to(contain(MuterTestReport.FileReport(fileName: "file 4.swift", mutationScore: 0, appliedOperators: [
+                        expect(report.fileReports).to(contain(MuterTestReport.FileReport(fileName: "file 4.swift", filePath: "/", mutationScore: 0, appliedOperators: [
                             MuterTestReport.AppliedMutationOperator(id: .negateConditionals, position: .firstPosition, testSuiteOutcome: .passed)
                             ])))
                     }
@@ -93,7 +93,7 @@ class MuterTestReportSpec: QuickSpec {
                 context("when given an empty collection of MutationTestOutcomes") {
                     var report: MuterTestReport!
                     beforeEach {
-                        report = MuterTestReport(from: [])
+                        report = MuterTestReport(from: [], reporter: jsonReport)
                     }
 
                     it("calculates all its fields to empty values as part of its initialization") {
@@ -112,7 +112,7 @@ class MuterTestReportSpec: QuickSpec {
                 context("when given a nonempty collection of MutationTestOutcomes") {
                     var report: MuterTestReport!
                     beforeEach {
-                        report = MuterTestReport(from: [MutationTestOutcome(testSuiteOutcome: .passed, appliedMutation: .negateConditionals, filePath: "file1.swift", position: .firstPosition)], xcodeOutput: true)
+                        report = MuterTestReport(from: [MutationTestOutcome(testSuiteOutcome: .passed, appliedMutation: .negateConditionals, filePath: "file1.swift", position: .firstPosition)], reporter: xcodeReport)
                     }
 
                     it("reports the results") {
@@ -123,7 +123,7 @@ class MuterTestReportSpec: QuickSpec {
                 context("when given an empty collection of MutationTestOutcomes") {
                     var report: MuterTestReport!
                     beforeEach {
-                        report = MuterTestReport(from: [], xcodeOutput: true)
+                        report = MuterTestReport(from: [], reporter: xcodeReport)
                     }
 
                     it("calculates all its fields to empty values as part of its initialization") {
